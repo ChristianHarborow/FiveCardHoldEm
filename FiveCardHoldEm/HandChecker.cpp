@@ -46,6 +46,8 @@ void HandChecker::checkHand()
 	splitSuits();
 	royalFlushCheck();
 	straightFlushCheck();
+	fourOfAKindCheck();
+	fullHouseCheck();
 }
 
 bool HandChecker::royalFlushCheck() 
@@ -99,4 +101,86 @@ bool HandChecker::straightFlushCheck()
 		}
 	}
 	return false;
+}
+
+bool HandChecker::fourOfAKindCheck()
+{
+	int rank = 15;
+	int occurences = 0;
+
+	for (int i = 6; i >= 0; i--)
+	{
+		if (hand.at(i).getRank() < rank)
+		{
+			rank = hand.at(i).getRank();
+			occurences = 1;
+		}
+		else
+		{
+			occurences++;
+		}
+		if (occurences == 4)
+		{
+			cout << "4 OF A KIND " << rank << " HIGH";
+			return true;
+		}
+	}
+	return false;
+}
+
+bool HandChecker::fullHouseCheck()
+{
+	vector<int> ranks = {};
+	vector<int> occurences = {};
+
+	for (int i = 6; i >= 0; i--) 
+	{
+		int rank = hand.at(i).getRank();
+		bool found = false;
+		
+		for (int j = 0; j < ranks.size(); j++)
+		{
+			if (rank == ranks.at(j))
+			{
+				occurences.at(j)++;
+				found = true;
+			}
+		}
+		if (!found)
+		{
+			ranks.push_back(rank);
+			occurences.push_back(1);
+		}
+	}
+
+	int triple = 0;
+	int pair = 0;
+
+	for (int i = 0; i < occurences.size(); i++)
+	{
+		if (occurences.at(i) == 3)
+		{
+			triple = ranks.at(i);
+		}
+		else if (occurences.at(i) == 2)
+		{
+			pair = ranks.at(i);
+		}
+		if (pair != 0 && triple != 0)
+		{
+			cout << "FULL HOUSE OF " << triple << "s AND " << pair << "s";
+			return true;
+		}
+	}
+	return false;
+}
+
+bool HandChecker::flushCheck()
+{
+	for (int i = 0; i < 4; i++)
+	{
+		if (suits.at(i).size() >= 5) {
+
+		}
+	}
 }

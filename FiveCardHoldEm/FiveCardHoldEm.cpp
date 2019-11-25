@@ -11,7 +11,7 @@ using namespace std;
 int main()
 {
 	int value = 0;
-	vector<Card> test = { Card(8, 's'), Card(9,'s'), Card(10,'s'), Card(11,'s'), Card(12,'s'), Card(13,'s'), Card(14,'s') };
+	vector<Card> test = { Card(10, 's'), Card(10,'d'), Card(10,'h'), Card(7,'c'), Card(7,'s'), Card(13,'s'), Card(14,'s') };
 	HandChecker hc(test, &value);
 	hc.checkHand();
 }
