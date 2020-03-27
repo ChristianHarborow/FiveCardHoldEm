@@ -1,5 +1,6 @@
 #pragma once
 #include "Card.h"
+#include <string>
 #include <vector>
 
 using namespace std;
@@ -13,6 +14,7 @@ private:
 
 	static bool compareCards(Card card1, Card card2);
 	void splitSuits();
+	char suitNumToChar(int num);
 
 	bool royalFlushCheck();
 	bool straightFlushCheck();

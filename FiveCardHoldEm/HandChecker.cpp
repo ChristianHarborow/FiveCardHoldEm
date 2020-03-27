@@ -40,6 +40,24 @@ void HandChecker::splitSuits()
 	}
 }
 
+char HandChecker::suitNumToChar(int num) {
+	switch (num)
+	{
+	case 0:
+		return 's';
+		break;
+	case 1:
+		return 'd';
+		break;
+	case 2:
+		return 'c';
+		break;
+	default:
+		return 'h';
+		break;
+	}
+}
+
 void HandChecker::checkHand() 
 {
 	sort(hand.begin(), hand.end(), compareCards);
@@ -64,11 +82,12 @@ bool HandChecker::royalFlushCheck()
 				&& suit.at(size - 4) == 11
 				&& suit.at(size - 5) == 10)
 			{
-				cout << "ROYAL_FLUSH";
+				cout << "Royal Flush of " + Card::getSuitString(suitNumToChar(i));
 				return true;
 			}
 		}
 	}
+	return false;
 }
 
 bool HandChecker::straightFlushCheck()
@@ -86,7 +105,7 @@ bool HandChecker::straightFlushCheck()
 					&& suit.at(j - 3) == highRank - 3
 					&& suit.at(j - 4) == highRank - 4)
 				{
-					cout << "STRAIGHT FLUSH " << to_string(highRank) << " HIGH";
+					cout << Card::getRankString(highRank) + " High straight flush of " + Card::getSuitString(suitNumToChar(i));
 					return true;
 				}
 				//low ace case
@@ -94,7 +113,7 @@ bool HandChecker::straightFlushCheck()
 					&& suit.at(2) == 4 && suit.at(3) == 5 
 					&& suit.at(suit.size() - 1) == 14)
 				{
-					cout << "STRAIGHT FLUSH 5 HIGH";
+					cout << "5 High Straight Flush";
 					return true;
 				}
 			}
@@ -121,7 +140,7 @@ bool HandChecker::fourOfAKindCheck()
 		}
 		if (occurences == 4)
 		{
-			cout << "4 OF A KIND " << rank << " HIGH";
+			cout << "4 of a Kind of " + Card::getRankString(rank) + "s";
 			return true;
 		}
 	}
@@ -183,4 +202,5 @@ bool HandChecker::flushCheck()
 
 		}
 	}
+	return NULL;
 }
