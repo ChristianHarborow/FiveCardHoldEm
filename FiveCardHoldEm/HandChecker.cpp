@@ -4,20 +4,14 @@
 
 using namespace std;
 
-HandChecker::HandChecker(vector<Card> hand, int* value)
-{
-	this->hand = hand;
-	this->value = value;
-}
-
 bool HandChecker::compareCards(Card card1, Card card2)
 {
-	return card1.getRank() < card2.getRank();
+	return card1.getRank() > card2.getRank();
 }
 
 void HandChecker::splitSuits()
 {
-	suits = { vector<int>(), vector<int>() , vector<int>() , vector<int>() }; // [0]=spade, [1]=diamond, [2]=club, [3]=heart
+	suits = { vector<Card>(), vector<Card>() , vector<Card>() , vector<Card>() }; // [0]=spade, [1]=diamond, [2]=club, [3]=heart
 
 	for (int i = 0; i < 7; i++)
 	{
@@ -25,16 +19,16 @@ void HandChecker::splitSuits()
 		switch (card.getSuit())
 		{
 		case 's':
-			suits.at(0).push_back(card.getRank());
+			suits.at(0).push_back(card);
 			break;
 		case 'c':
-			suits.at(1).push_back(card.getRank());
+			suits.at(1).push_back(card);
 			break;
 		case 'd':
-			suits.at(2).push_back(card.getRank());
+			suits.at(2).push_back(card);
 			break;
 		default:
-			suits.at(3).push_back(card.getRank());
+			suits.at(3).push_back(card);
 			break;
 		}
 	}
@@ -58,29 +52,32 @@ char HandChecker::suitNumToChar(int num) {
 	}
 }
 
-void HandChecker::checkHand() 
+void HandChecker::checkHand(Player player, vector<Card> communityCards) 
 {
+	hand.clear();
+	hand.insert(hand.begin(), communityCards.begin(), communityCards.end());
+	hand.insert(hand.end(), player.getHoleCards.begin(), player.getHoleCards.end());
+
 	sort(hand.begin(), hand.end(), compareCards);
 	splitSuits();
-	royalFlushCheck();
-	straightFlushCheck();
-	fourOfAKindCheck();
-	fullHouseCheck();
+	if (royalFlushCheck()) return;
+	if (straightFlushCheck()) return;
+	if (fourOfAKindCheck()) return;
+	if (fullHouseCheck()) return;
 }
 
 bool HandChecker::royalFlushCheck() 
 {
 	for (int i = 0; i < 4; i++)
 	{
-		vector<int> suit = suits.at(i);
-		int size = suit.size();
-		if (size >= 5)
+		vector<Card> suit = suits.at(i);
+		if (suit.size() >= 5)
 		{
-			if (suit.at(size - 1) == 14
-				&& suit.at(size - 2) == 13
-				&& suit.at(size - 3) == 12
-				&& suit.at(size - 4) == 11
-				&& suit.at(size - 5) == 10)
+			if (suit.at(0).getRank() == 14
+				&& suit.at(1).getRank() == 13
+				&& suit.at(2).getRank() == 12
+				&& suit.at(3).getRank() == 11
+				&& suit.at(4).getRank() == 10)
 			{
 				cout << "Royal Flush of " + Card::getSuitString(suitNumToChar(i));
 				return true;
@@ -94,24 +91,26 @@ bool HandChecker::straightFlushCheck()
 {
 	for (int i = 0; i < 4; i++)
 	{
-		vector<int> suit = suits.at(i);
+		vector<Card> suit = suits.at(i);
 		if (suit.size() >= 5)
 		{
-			for (int j = suit.size() - 1; j >= 4; j--)
+			for (int j = 0; j < suit.size() - 4; j++)
 			{
-				int highRank = suit.at(j);
-				if (suit.at(j - 1) == highRank - 1
-					&& suit.at(j - 2) == highRank - 2
-					&& suit.at(j - 3) == highRank - 3
-					&& suit.at(j - 4) == highRank - 4)
+				int highRank = suit.at(j).getRank();
+				if (suit.at(j + 1).getRank() == highRank - 1
+					&& suit.at(j + 2).getRank() == highRank - 2
+					&& suit.at(j + 3).getRank() == highRank - 3
+					&& suit.at(j + 4).getRank() == highRank - 4)
 				{
 					cout << Card::getRankString(highRank) + " High straight flush of " + Card::getSuitString(suitNumToChar(i));
 					return true;
 				}
 				//low ace case
-				if (suit.at(0) == 2 && suit.at(1) == 3 
-					&& suit.at(2) == 4 && suit.at(3) == 5 
-					&& suit.at(suit.size() - 1) == 14)
+				if (suit.at(0).getRank() == 14 
+					&& suit.at(suit.size() - 1).getRank() == 2
+					&& suit.at(suit.size() - 2).getRank() == 3 
+					&& suit.at(suit.size() - 3).getRank() == 4
+					&& suit.at(suit.size() - 4).getRank() == 5)
 				{
 					cout << "5 High Straight Flush";
 					return true;
@@ -127,7 +126,7 @@ bool HandChecker::fourOfAKindCheck()
 	int rank = 15;
 	int occurences = 0;
 
-	for (int i = 6; i >= 0; i--)
+	for (int i = 0; i < 7; i++)
 	{
 		if (hand.at(i).getRank() < rank)
 		{
@@ -152,7 +151,7 @@ bool HandChecker::fullHouseCheck()
 	vector<int> ranks = {};
 	vector<int> occurences = {};
 
-	for (int i = 6; i >= 0; i--) 
+	for (int i = 0; i < 7; i++) 
 	{
 		int rank = hand.at(i).getRank();
 		bool found = false;
@@ -177,11 +176,11 @@ bool HandChecker::fullHouseCheck()
 
 	for (int i = 0; i < occurences.size(); i++)
 	{
-		if (occurences.at(i) == 3)
+		if (occurences.at(i) == 3 && triple != 0)
 		{
 			triple = ranks.at(i);
 		}
-		else if (occurences.at(i) == 2)
+		else if (occurences.at(i) == 2 && pair != 0)
 		{
 			pair = ranks.at(i);
 		}

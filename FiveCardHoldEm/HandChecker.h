@@ -1,5 +1,6 @@
 #pragma once
 #include "Card.h"
+#include "Player.h"
 #include <string>
 #include <vector>
 
@@ -8,28 +9,23 @@ using namespace std;
 class HandChecker
 {
 private:
-	vector<Card> hand;
-	int* value;
-	vector<vector<int>> suits;
+	static vector<Card> hand;
+	static vector<vector<Card>> suits;
 
 	static bool compareCards(Card card1, Card card2);
-	void splitSuits();
-	char suitNumToChar(int num);
+	static void splitSuits();
+	static char suitNumToChar(int num);
 
-	bool royalFlushCheck();
-	bool straightFlushCheck();
-	bool fourOfAKindCheck();
-	bool fullHouseCheck();
-	bool flushCheck();
-	bool straightCheck();
-	bool threeOfAKindCheck();
-	bool twoPairCheck();
-	bool pairCheck();
-public: 
-	HandChecker(vector<Card> hand, int* value);
-	void checkHand();
-	
-
-	
+	static bool royalFlushCheck();
+	static bool straightFlushCheck();
+	static bool fourOfAKindCheck();
+	static bool fullHouseCheck();
+	static bool flushCheck();
+	static bool straightCheck();
+	static bool threeOfAKindCheck();
+	static bool twoPairCheck();
+	static bool pairCheck();
+public:
+	static void checkHand(Player player, vector<Card> communityCards);
 };
 
