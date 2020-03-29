@@ -15,7 +15,7 @@ void HandChecker::splitSuits()
 
 	for (int i = 0; i < 7; i++)
 	{
-		Card card = hand.at(i);
+		Card card = cards.at(i);
 		switch (card.getSuit())
 		{
 		case 's':
@@ -34,31 +34,14 @@ void HandChecker::splitSuits()
 	}
 }
 
-char HandChecker::suitNumToChar(int num) {
-	switch (num)
-	{
-	case 0:
-		return 's';
-		break;
-	case 1:
-		return 'd';
-		break;
-	case 2:
-		return 'c';
-		break;
-	default:
-		return 'h';
-		break;
-	}
-}
-
 void HandChecker::checkHand(Player player, vector<Card> communityCards) 
 {
-	hand.clear();
-	hand.insert(hand.begin(), communityCards.begin(), communityCards.end());
-	hand.insert(hand.end(), player.getHoleCards.begin(), player.getHoleCards.end());
+	HandChecker::player = player;
+	cards.clear();
+	cards.insert(cards.begin(), communityCards.begin(), communityCards.end());
+	cards.insert(cards.end(), player.getHoleCards.begin(), player.getHoleCards.end());
 
-	sort(hand.begin(), hand.end(), compareCards);
+	sort(cards.begin(), cards.end(), compareCards);
 	splitSuits();
 	if (royalFlushCheck()) return;
 	if (straightFlushCheck()) return;
@@ -79,7 +62,8 @@ bool HandChecker::royalFlushCheck()
 				&& suit.at(3).getRank() == 11
 				&& suit.at(4).getRank() == 10)
 			{
-				cout << "Royal Flush of " + Card::getSuitString(suitNumToChar(i));
+				player.setHandRating(9);
+				player.setHand({suit.at(4), suit.at(3), suit.at(2), suit.at(1), suit.at(0)});
 				return true;
 			}
 		}
@@ -102,7 +86,8 @@ bool HandChecker::straightFlushCheck()
 					&& suit.at(j + 3).getRank() == highRank - 3
 					&& suit.at(j + 4).getRank() == highRank - 4)
 				{
-					cout << Card::getRankString(highRank) + " High straight flush of " + Card::getSuitString(suitNumToChar(i));
+					player.setHandRating(8);
+					player.setHand({suit.at(j + 4), suit.at(j + 3), suit.at(j + 2), suit.at(j + 1), suit.at(j)});
 					return true;
 				}
 				//low ace case
@@ -112,7 +97,8 @@ bool HandChecker::straightFlushCheck()
 					&& suit.at(suit.size() - 3).getRank() == 4
 					&& suit.at(suit.size() - 4).getRank() == 5)
 				{
-					cout << "5 High Straight Flush";
+					player.setHandRating(8);
+					player.setHand({suit.at(0), suit.at(suit.size() - 1), suit.at(suit.size() - 2), suit.at(suit.size() - 3), suit.at(suit.size() - 4)});
 					return true;
 				}
 			}
@@ -128,9 +114,9 @@ bool HandChecker::fourOfAKindCheck()
 
 	for (int i = 0; i < 7; i++)
 	{
-		if (hand.at(i).getRank() < rank)
+		if (cards.at(i).getRank() < rank)
 		{
-			rank = hand.at(i).getRank();
+			rank = cards.at(i).getRank();
 			occurences = 1;
 		}
 		else
@@ -139,7 +125,17 @@ bool HandChecker::fourOfAKindCheck()
 		}
 		if (occurences == 4)
 		{
-			cout << "4 of a Kind of " + Card::getRankString(rank) + "s";
+			vector<Card> playerHand = {cards.at(i - 3), cards.at(i - 2), cards.at(i - 1), cards.at(i)};
+			// find the kicker
+			for (int j = 0; j < cards.size(); j++)
+			{
+				if (cards.at(j).getRank() != rank) {
+					playerHand.push_back(cards.at(j));
+					break;
+				}
+			}
+			player.setHandRating(7);
+			player.setHand(playerHand);
 			return true;
 		}
 	}
@@ -148,18 +144,20 @@ bool HandChecker::fourOfAKindCheck()
 
 bool HandChecker::fullHouseCheck()
 {
-	vector<int> ranks = {};
-	vector<int> occurences = {};
+	vector<vector<Card>> cardsInRanks;
+	vector<int> ranks;
+	vector<int> occurences;
 
 	for (int i = 0; i < 7; i++) 
 	{
-		int rank = hand.at(i).getRank();
+		int rank = cards.at(i).getRank();
 		bool found = false;
 		
 		for (int j = 0; j < ranks.size(); j++)
 		{
 			if (rank == ranks.at(j))
 			{
+				cardsInRanks.at(j).push_back(cards.at(i));
 				occurences.at(j)++;
 				found = true;
 			}
@@ -167,26 +165,35 @@ bool HandChecker::fullHouseCheck()
 		if (!found)
 		{
 			ranks.push_back(rank);
+			cardsInRanks.push_back({ cards.at(i) });
 			occurences.push_back(1);
 		}
 	}
 
-	int triple = 0;
-	int pair = 0;
+	bool triple = false;
+	bool pair = false;
+	vector<Card> tripleCards;
+	vector<Card> pairCards;
 
 	for (int i = 0; i < occurences.size(); i++)
 	{
-		if (occurences.at(i) == 3 && triple != 0)
+		if (occurences.at(i) == 3 && !triple)
 		{
-			triple = ranks.at(i);
+			triple = true;
+			tripleCards = { cardsInRanks.at(i).at(0), cardsInRanks.at(i).at(1), cardsInRanks.at(i).at(2) };
 		}
-		else if (occurences.at(i) == 2 && pair != 0)
+		else if (occurences.at(i) >= 2 && !pair)
 		{
-			pair = ranks.at(i);
+			pair = true;
+			pairCards = { cardsInRanks.at(i).at(0), cardsInRanks.at(i).at(1) };
 		}
-		if (pair != 0 && triple != 0)
+		if (pair && triple)
 		{
-			cout << "FULL HOUSE OF " << triple << "s AND " << pair << "s";
+			vector<Card> playerHand;
+			playerHand.insert(playerHand.begin(), tripleCards.begin(), tripleCards.end());
+			playerHand.insert(playerHand.end(), pairCards.begin(), pairCards.end());
+			player.setHandRating(6);
+			player.setHand(playerHand);
 			return true;
 		}
 	}
@@ -198,8 +205,105 @@ bool HandChecker::flushCheck()
 	for (int i = 0; i < 4; i++)
 	{
 		if (suits.at(i).size() >= 5) {
-
+			player.setHandRating(5);
+			player.setHand({ suits.at(i).at(0), suits.at(i).at(1), suits.at(i).at(2), suits.at(i).at(3), suits.at(i).at(4) });
+			return true;
 		}
 	}
-	return NULL;
+	return false;
+}
+
+bool HandChecker::straightCheck() {
+	vector<int> ranks;
+	vector<Card> uniqueCards;
+	for (int i = 0; i < cards.size(); i++)
+	{
+		bool found = false;
+		for (int j = 0; j < ranks.size(); j++)
+		{
+			if (cards.at(i).getRank() == ranks.at(j)) {
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+		{
+			ranks.push_back(cards.at(i).getRank());
+			uniqueCards.push_back(cards.at(i));
+		}
+	}
+
+	if (ranks.size() >= 5)
+	{
+		for (int i = 0; i < ranks.size() - 4; i++) {
+			int highRank = ranks.at(i);
+			if (ranks.at(i + 1) == highRank - 1
+				&& ranks.at(i + 2) == highRank - 2
+				&& ranks.at(i + 3) == highRank - 3
+				&& ranks.at(i + 4) == highRank - 4)
+			{
+				player.setHandRating(4);
+				player.setHand({ uniqueCards.at(i + 4), uniqueCards.at(i + 3), uniqueCards.at(i + 2), uniqueCards.at(i + 1), uniqueCards.at(i) });
+				return true;
+			}
+			//low ace case
+			if (ranks.at(0) == 14
+				&& ranks.at(ranks.size() - 1) == 2
+				&& ranks.at(ranks.size() - 2) == 3
+				&& ranks.at(ranks.size() - 3) == 4
+				&& ranks.at(ranks.size() - 4) == 5)
+			{
+				player.setHandRating(4);
+				player.setHand({ uniqueCards.at(0), 
+					uniqueCards.at(uniqueCards.size() - 1), 
+					uniqueCards.at(uniqueCards.size() - 2), 
+					uniqueCards.at(uniqueCards.size() - 3), 
+					uniqueCards.at(uniqueCards.size() - 4) });
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool HandChecker::threeOfAKindCheck() {
+	vector<vector<Card>> cardsInRanks;
+	vector<int> ranks;
+	vector<int> occurences;
+
+	for (int i = 0; i < 7; i++)
+	{
+		int rank = cards.at(i).getRank();
+		bool found = false;
+
+		for (int j = 0; j < ranks.size(); j++)
+		{
+			if (rank == ranks.at(j))
+			{
+				cardsInRanks.at(j).push_back(cards.at(i));
+				occurences.at(j)++;
+				found = true;
+			}
+		}
+		if (!found)
+		{
+			ranks.push_back(rank);
+			cardsInRanks.push_back({ cards.at(i) });
+			occurences.push_back(1);
+		}
+	}
+
+
+}
+
+bool HandChecker::twoPairCheck() {
+	return false;
+}
+
+bool HandChecker::pairCheck() {
+	return false;
+}
+
+void HandChecker::highCards() {
+
 }

@@ -9,12 +9,12 @@ using namespace std;
 class HandChecker
 {
 private:
-	static vector<Card> hand;
+	static Player player;
+	static vector<Card> cards;
 	static vector<vector<Card>> suits;
 
 	static bool compareCards(Card card1, Card card2);
 	static void splitSuits();
-	static char suitNumToChar(int num);
 
 	static bool royalFlushCheck();
 	static bool straightFlushCheck();
@@ -25,6 +25,7 @@ private:
 	static bool threeOfAKindCheck();
 	static bool twoPairCheck();
 	static bool pairCheck();
+	static void highCards();
 public:
 	static void checkHand(Player player, vector<Card> communityCards);
 };
