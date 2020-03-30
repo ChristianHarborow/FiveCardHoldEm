@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
+#include <string>
 #include "Card.h"
-
 
 class Player
 {
@@ -21,5 +21,7 @@ public:
 	void addChips(int amount);
 	void setHandRating(int rating);
 	void setHand(vector<Card> hand);
+	vector<Card> getHand();
+	string getHandString();
 };
 

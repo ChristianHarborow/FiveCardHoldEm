@@ -1,15 +1,14 @@
 #pragma once
-#include "Card.h"
-#include "Player.h"
 #include <string>
 #include <vector>
+#include "Player.h"
 
 using namespace std;
 
 class HandChecker
 {
 private:
-	static Player player;
+	static Player* currentPlayerPtr;
 	static vector<Card> cards;
 	static vector<vector<Card>> suits;
 
@@ -27,6 +26,6 @@ private:
 	static bool pairCheck();
 	static void highCards();
 public:
-	static void checkHand(Player player, vector<Card> communityCards);
+	static void checkHand(Player *player, vector<Card> communityCards);
 };
 

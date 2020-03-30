@@ -11,10 +11,10 @@ private:
 	char suit; //s = Spades, d = Diamonds, c = Clubs, h = Hearts
 public:
 	Card(int rank, char suit);
+	Card();
 	int getRank();
 	static string getRankString(int rank);
 	char getSuit();
 	static string getSuitString(char suit);
 	string toString();
 };
-

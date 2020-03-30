@@ -4,21 +4,21 @@
 #include <iostream>
 #include <algorithm>
 #include "HandChecker.h"
-#include "Card.h"
 
 using namespace std;
 
 int main()
 {
-	/*
-	int value = 0;
-	vector<Card> test = { Card(10, 's'), Card(10,'d'), Card(10,'h'), Card(7,'c'), Card(7,'s'), Card(13,'s'), Card(14,'s') };
-	HandChecker hc(test, &value);
-	hc.checkHand();
-	*/
-
-	Card testCard = Card(14, 's');
-	cout << testCard.toString();
+	Player player1 = Player(2000);
+	player1.addCard(Card(4, 's'));
+	player1.addCard(Card(2, 'c'));
+	vector<Card> communityCards = { Card(2, 'd'), Card(4, 'd'), Card(11,'s'), Card(3, 'd'), Card(8, 'h') };
+	HandChecker::checkHand(&player1, communityCards);
+	
+	for (Card card : player1.getHand())
+	{
+		cout << card.toString() << "\n";
+	}
 }
 
 

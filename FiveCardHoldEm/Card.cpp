@@ -1,9 +1,13 @@
 #include "Card.h"
 
 Card::Card(int rank, char suit) 
+	:rank(rank), suit(suit)
 {
-	this->rank = rank;
-	this->suit = suit;
+}
+
+Card::Card()
+	:rank(0), suit('x')
+{
 }
 
 int Card::getRank()

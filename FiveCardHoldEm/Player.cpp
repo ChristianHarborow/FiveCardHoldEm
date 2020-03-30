@@ -1,7 +1,8 @@
 #include "Player.h"
 
-Player::Player(int chips = DEFAULT_CHIPS) {
-	this->chips = chips;
+Player::Player(int chips) 
+	:chips(chips), handRating(0)
+{
 }
 
 void Player::clearCards() {
@@ -40,4 +41,21 @@ void Player::setHandRating(int rating) {
 void Player::setHand(vector<Card> hand) {
 	this->hand.clear();
 	this->hand.insert(this->hand.begin(), hand.begin(), hand.end());
+}
+
+vector<Card> Player::getHand()
+{
+	return hand;
+}
+
+string Player::getHandString()
+{
+	switch (handRating)
+	{
+	case 9:
+
+	default:
+		break;
+	}
+	return string();
 }
