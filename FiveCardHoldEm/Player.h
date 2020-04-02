@@ -20,6 +20,7 @@ public:
 	bool removeChips(int amount);
 	void addChips(int amount);
 	void setHandRating(int rating);
+	int getHandRating();
 	void setHand(vector<Card> hand);
 	vector<Card> getHand();
 	string getHandString();
